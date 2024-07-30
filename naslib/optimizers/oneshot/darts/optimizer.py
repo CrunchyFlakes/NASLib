@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import logging
 from torch.autograd import Variable
+from typing import Optional
 
 from naslib.search_spaces.core.primitives import MixedOp
 from naslib.optimizers.core.metaclasses import MetaOptimizer
@@ -162,7 +163,7 @@ class DARTSOptimizer(MetaOptimizer):
         )
         super().new_epoch(epoch)
 
-    def step(self, data_train, data_val):
+    def step(self, data_train, data_val, train_frac: float = 1.0):
         input_train, target_train = data_train
         input_val, target_val = data_val
 
@@ -173,6 +174,9 @@ class DARTSOptimizer(MetaOptimizer):
         else:
             # Update architecture weights
             self.arch_optimizer.zero_grad()
+            # Set scheduling of surrogate skip in graph
+            # 1.0 doesn't use skip at all
+            self.graph.set_member_rec("surrogate_frac", (1 - train_frac) / 2)
             logits_val = self.graph(input_val)
             val_loss = self.loss(logits_val, target_val)
             val_loss.backward()

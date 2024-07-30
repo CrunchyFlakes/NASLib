@@ -134,7 +134,7 @@ class Trainer(object):
                         data_val[1].to(self.device, non_blocking=True),
                     )
 
-                    stats = self.optimizer.step(data_train, data_val)
+                    stats = self.optimizer.step(data_train, data_val, train_frac=e/self.epochs)
                     logits_train, logits_val, train_loss, val_loss = stats
 
                     self._store_accuracies(logits_train, data_train[1], "train")

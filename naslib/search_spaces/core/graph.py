@@ -5,6 +5,8 @@ import torch
 import random
 import inspect
 
+from typing import Any
+
 from networkx.algorithms.dag import lexicographical_topological_sort
 
 from naslib.utils import iter_flatten, AttrDict
@@ -492,6 +494,11 @@ class Graph(torch.nn.Module, nx.DiGraph):
         g.QUERYABLE = self.QUERYABLE
 
         return g
+
+    def set_member_rec(self, member: str, val: Any) -> None:
+        setattr(self, member, val)
+        for g in self._get_child_graphs():
+            setattr(g, member, val)
 
     def _get_child_graphs(self, single_instances: bool = False) -> list:
         """
