@@ -123,7 +123,7 @@ class DARTSOptimizer(MetaOptimizer):
         )
 
         self.loss = create_criterion(
-            crit=self.loss,
+            crit=self.loss, reduction="mean", weight=kwargs.get("class_weights", None)
         )
 
         graph.train()
