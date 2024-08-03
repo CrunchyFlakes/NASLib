@@ -50,6 +50,8 @@ def plot_architectural_weights(config, optimizer, max_rows=4):
 
         # define figure and axes and NASLib colormap
         fig, axes = plt.subplots(nrows=n_rows, figsize=(10, max_rows))
+        if n_rows == 1:
+            axes = [axes]
         cmap = sns.diverging_palette(230, 0, 90, 60, as_cmap=True)
 
         # iterate over arch weights and create heatmaps
