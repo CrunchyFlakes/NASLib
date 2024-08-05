@@ -209,6 +209,16 @@ class Trainer(object):
             if after_epoch is not None:
                 after_epoch(e)
 
+            # added early stopping functionality
+            if self.config.search.get("apply_early_stopping", False):
+                num_skips = self.optimizer.graph.count_skips(self.config.search.early_stopping_threshold)
+                logger.info(f"Number of selected skips: {num_skips}")
+                if num_skips > self.config.search.stopping_after_n_skips:
+
+                    open(os.path.join(self.config.save, f"NAS_TERMINATED_AFTER_{e}_EPOCHS_({num_skips})"), "w")
+                    logger.info(f"NAS terminated: Maximum number of skips surpassed: Selected skips: {num_skips}, Maximum number of skips: {self.config.search.stopping_after_n_skips}")
+                    break
+
         logger.info(f"Saving architectural weight tensors: {self.config.save}/arch_weights.pt")
         if hasattr(self.config, "save_arch_weights") and self.config.save_arch_weights:
             torch.save(arch_weights, f'{self.config.save}/arch_weights.pt')
