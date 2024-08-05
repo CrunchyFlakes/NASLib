@@ -80,7 +80,7 @@ class DARTSOptimizer(MetaOptimizer):
         self.perturb_alphas = None
         self.epsilon = 0
 
-    def adapt_search_space(self, search_space, dataset, scope=None, **kwargs):
+    def adapt_search_space(self, search_space, dataset, loss=None, scope=None, **kwargs):
         # We are going to modify the search space
         self.search_space = search_space
         graph = search_space.clone()
@@ -122,9 +122,12 @@ class DARTSOptimizer(MetaOptimizer):
             weight_decay=self.weight_decay,
         )
 
-        self.loss = create_criterion(
-            crit=self.loss, reduction="mean", weight=kwargs.get("class_weights", None)
-        )
+        if not loss:
+            self.loss = create_criterion(
+                crit=self.loss, reduction="mean", weight=kwargs.get("class_weights", None)
+            )
+        else:
+            self.loss = loss
 
         graph.train()
 
