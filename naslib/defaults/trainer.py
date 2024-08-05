@@ -211,7 +211,10 @@ class Trainer(object):
 
             # added early stopping functionality
             if self.config.search.get("apply_early_stopping", False):
-                num_skips = self.optimizer.graph.count_skips(self.config.search.early_stopping_threshold)
+                if hasattr(self.optimizer.graph, 'count_skips') and callable(self.optimizer.graph.count_skips):
+                    num_skips = self.optimizer.graph.count_skips(self.config.search.early_stopping_threshold)
+                else:
+                    logger.error("Graph has no member function `count_skips`")
                 logger.info(f"Number of selected skips: {num_skips}")
                 if num_skips > self.config.search.stopping_after_n_skips:
 
