@@ -180,7 +180,9 @@ class DARTSOptimizer(MetaOptimizer):
             # Set scheduling of surrogate skip in graph
             # 1.0 doesn't use skip at all
             self.graph.set_member_rec("surrogate_frac", (1 - train_frac) / 2)
-            logits_val = self.graph(input_val)
+            logits_val = self.graph(input_val).squeeze()
+            if len(logits_val.shape) == 1:
+                target_val = target_val.to(torch.float32)
             val_loss = self.loss(logits_val, target_val)
             val_loss.backward()
 
@@ -188,7 +190,9 @@ class DARTSOptimizer(MetaOptimizer):
 
             # Update op weights
             self.op_optimizer.zero_grad()
-            logits_train = self.graph(input_train)
+            logits_train = self.graph(input_train).squeeze()
+            if len(logits_val.shape) == 1:
+                target_train = target_train.to(torch.float32)
             train_loss = self.loss(logits_train, target_train)
             train_loss.backward()
             if self.grad_clip:

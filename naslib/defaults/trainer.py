@@ -453,7 +453,10 @@ class Trainer(object):
 
                 with torch.no_grad():
                     logits = best_arch(input_test)
-
+                    # convert logits to softmax, naslib expects normal classification task
+                    if len(logits.squeeze().shape) == 1:
+                        logits = torch.nn.functional.one_hot(logits.round().long().squeeze(), num_classes=int(torch.max(torch.cat((target_test+1, logits.round().long() + 1)))))
+             
                     prec1, prec5 = utils.accuracy(logits, target_test, topk=(1, 5))
                     top1.update(prec1.data.item(), n)
                     top5.update(prec5.data.item(), n)
@@ -539,6 +542,8 @@ class Trainer(object):
         """Update the accuracy counters"""
         logits = logits.clone().detach().cpu()
         target = target.clone().detach().cpu()
+        if len(logits.squeeze().shape) == 1:
+            logits = torch.nn.functional.one_hot(logits.round().long().squeeze(), num_classes=int(torch.max(torch.cat((target+1, logits.round().long() + 1)))))
         prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
         n = logits.size(0)
 
