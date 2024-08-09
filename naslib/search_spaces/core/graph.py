@@ -1055,7 +1055,7 @@ class EdgeData:
 
         return new_self
 
-    def set(self, key: str, value, shared=False):
+    def set(self, key: str, value, shared=False, overwrite=False):
         """
         Used to assign a new item to the EdgeData object.
 
@@ -1078,7 +1078,11 @@ class EdgeData:
                 self._shared[key] = value
         else:
             if key in self._shared:
-                raise ValueError("Key {} alredy defined as shared".format(key))
+                if not overwrite:
+                    raise ValueError("Key {} alredy defined as shared".format(key))
+                else:
+                    del self._shared[key]
+                    self._private[key] = value
             else:
                 self._private[key] = value
 
